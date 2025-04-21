@@ -1,4 +1,13 @@
 {
+    "name": "fabrizio_juarez/flightapi",
+    "description": "Api with Flight Framework and PostgreSQL",
+    "type" : "project",
+    "authors": [
+        {
+            "name": "fabriziojuarez",
+            "email": "fabriziojuarez79@gmail.com"
+        }
+    ],
     "require": {
         "flightphp/core": "^3.15"
     }
