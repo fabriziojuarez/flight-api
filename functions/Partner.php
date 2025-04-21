@@ -38,6 +38,37 @@ class Partner
         Flight::json($response);
     }
 
+    public static function show($id){
+        try{
+            $query = Flight::db()->prepare("SELECT * FROM partners WHERE id_partner = :id");
+            $query->execute([':id' => $id]);
+            $result = $query->fetch();
+
+            $data = [
+                'id' => $result['id_partner'],
+                'estado' => $result['id_partner'],
+                'usuario' => $result['user_partner'],
+                'codigo' => $result['code_partner'],
+                'posicion' => $result['role_partner'],
+                'nombres' => $result['name_partner'],
+                'apellidos' => $result['lastname_partner'],
+                'fecha_inicio' => $result['startdate_partner'],
+                'fecha_actualizado' => $result['update_partner'],
+            ];
+
+            $response = [
+                'status' => 'success',
+                'partner' => $data,
+            ];
+        }catch(Exception $e){
+            $response = [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
+        }
+        Flight::json($response);
+    }
+
     public static function store()
     {
         try {
@@ -81,6 +112,33 @@ class Partner
                 ],
             ];
         } catch (Exception $e) {
+            $response = [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
+        }
+        Flight::json($response);
+    }
+
+    public static function delete($id){
+        try{
+            $query = Flight::db()->prepare("DELETE FROM partners WHERE id_partner = :id");
+            $query->execute([':id' => $id]);
+
+            if($query->rowCount() == 0){
+                $response = [
+                    'status' => 'error',
+                    'error' => 'no se puedo eliminar partner',
+                ];
+                Flight::json($response);
+                return;
+            }
+
+            $response = [
+                'status' => 'success',
+                'msg' => 'Partner eliminado',
+            ];
+        }catch(Exception $e){
             $response = [
                 'status' => 'error',
                 'error' => $e->getMessage(),
