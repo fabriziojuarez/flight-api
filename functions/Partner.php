@@ -1,7 +1,5 @@
 <?php
 
-use flight\net\Request;
-
 require_once "./config/connection.php";
 
 class Partner{
@@ -24,14 +22,5 @@ class Partner{
             ];
         }
         Flight::json($data);
-    }
-
-    public static function store(Request $request){
-        try{
-            $
-            $query = Flight::db()->prepare("SELECT * FROM partners");
-        }catch(Exception $e){
-            
-        }
     }
 }

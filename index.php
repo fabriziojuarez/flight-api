@@ -16,6 +16,7 @@ Flight::route('POST /partners', function(){
 });
 
 Flight::route('GET /training', [Training::class, 'index']);
+Flight::route('GET /training/@id', [Training::class, 'show']);
 Flight::route('POST /training', [Training::class, 'store']);
 
 
