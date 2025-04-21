@@ -1,7 +1,5 @@
 <?php
 
-use flight\net\Request;
-
 require_once "./config/connection.php";
 
 class Training
@@ -78,13 +76,30 @@ class Training
         Flight::json($response);
     }
 
-    public static function delete(){
+    public static function delete($id){
         try{
-
             $query = Flight::db()->prepare("DELETE FROM training WHERE id_training = :id");
+            $query->execute([':id' => $id]);
 
+            if($query->rowCount() == 0){
+                $response = [
+                    'status' => 'error',
+                    'error' => 'Eliminacion no realizada',
+                ];
+                Flight::json($response);
+                return;
+            }
+
+            $response = [
+                'status' => 'success',
+                'msg' => 'Capacitacion eliminada',
+            ];
         }catch(Exception $e){
-
+            $response = [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
         }
+        Flight::json($response);
     }
 }
