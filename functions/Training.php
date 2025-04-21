@@ -29,7 +29,8 @@ class Training
         Flight::json($response);
     }
 
-    public static function show($id){
+    public static function show($id)
+    {
         try{
             $query = Flight::db()->prepare("SELECT * FROM training WHERE id_training = :id");
             $query->execute([':id' => $id]);
@@ -64,7 +65,8 @@ class Training
             $response = [
                 'status' => 'success',
                 'training' => [
-                    'name' => $name,
+                    'id' => Flight::db()->lastInsertId(),
+                    'nombre' => $name,
                 ],
             ];
         } catch (Exception $e) {

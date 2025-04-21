@@ -79,6 +79,7 @@ class Partner
             $name = Flight::request()->data->name;
             $lastname = Flight::request()->data->lastname;
             $startdate = Flight::request()->data->startdate;
+
             $query = Flight::db()->prepare("INSERT INTO partners (
                 state_partner,
                 user_partner,
@@ -100,15 +101,15 @@ class Partner
 
             $response = [
                 'status' => 'success',
-                'data' => [
+                'partner' => [
                     'id' => Flight::db()->lastInsertId(),
-                    'state' => $state,
-                    'user' => $user,
-                    'code' => $code,
-                    'role' => $role,
-                    'name' => $name,
-                    'lastname' => $lastname,
-                    'startdate' => $startdate,
+                    'estado' => $state,
+                    'usuario' => $user,
+                    'codigo' => $code,
+                    'posicion' => $role,
+                    'nombres' => $name,
+                    'apellidos' => $lastname,
+                    'fecha_inicio' => $startdate,
                 ],
             ];
         } catch (Exception $e) {
@@ -128,7 +129,7 @@ class Partner
             if($query->rowCount() == 0){
                 $response = [
                     'status' => 'error',
-                    'error' => 'no se puedo eliminar partner',
+                    'error' => 'Eliminacion no realizada',
                 ];
                 Flight::json($response);
                 return;
