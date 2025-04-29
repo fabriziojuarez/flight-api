@@ -13,7 +13,7 @@ Flight::route('/index.php', function(){
 Flight::route('GET /partners', [Partner::class, 'index']);
 Flight::route('GET /partners/@id', [Partner::class, 'show']);
 Flight::route('POST /partners', [Partner::class, 'store']);
-Flight::route('PUT /partners', [Partner::class, 'update']);
+Flight::route('PUT /partners/@id', [Partner::class, 'update']);
 Flight::route('DELETE /partners/@id', [Partner::class, 'delete']);
 
 // TRAINING

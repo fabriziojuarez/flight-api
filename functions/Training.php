@@ -103,6 +103,12 @@ class Training
                 return;
             }
 
+            $training = [
+                'id' => $id,
+                'nombre' => $name,
+                'estado' => $state,
+            ];
+
             $response = [
                 'status' => 'success',
                 'msg' => 'Capacitacion actualizada'

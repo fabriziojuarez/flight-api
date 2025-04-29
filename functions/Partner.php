@@ -151,12 +151,12 @@ class Partner
 
             $partner = [
                 'id' => $id,
-                'state' => $state,
-                'user' => $user,
-                'code' => $code,
-                'role' => $role,
-                'name' => $name,
-                'lastname' => $lastname,
+                'estado' => $state,
+                'usuario' => $user,
+                'codigo' => $code,
+                'posicion' => $role,
+                'nombres' => $name,
+                'apellidos' => $lastname,
                 'fecha_actualizado' => $date,
             ];
 
