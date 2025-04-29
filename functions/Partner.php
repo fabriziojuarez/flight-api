@@ -72,44 +72,41 @@ class Partner
     public static function store()
     {
         try {
-            $state = Flight::request()->data->state;
             $user = Flight::request()->data->user;
             $code = Flight::request()->data->code;
             $role = Flight::request()->data->role;
             $name = Flight::request()->data->name;
             $lastname = Flight::request()->data->lastname;
-            $startdate = Flight::request()->data->startdate;
+            $date = date("Y-m-d");
 
             $query = Flight::db()->prepare("INSERT INTO partners (
-                state_partner,
                 user_partner,
                 code_partner,
                 role_partner,
                 name_partner,
                 lastname_partner,
                 startdate_partner
-                ) VALUES (:state, :user, :code, :role, :name, :lastname, :startdate)");
+                ) VALUES (:user, :code, :role, :name, :lastname, :startdate)");
             $query->execute([
-                ":state" => $state,
                 ":user" => $user,
                 ":code" => $code,
                 ":role" => $role,
                 ":name" => $name,
                 ":lastname" => $lastname,
-                ":startdate" => $startdate,
+                ":startdate" => $date,
             ]);
 
             $response = [
                 'status' => 'success',
                 'partner' => [
                     'id' => Flight::db()->lastInsertId(),
-                    'estado' => $state,
+                    'estado' => 'ACTIVO',
                     'usuario' => $user,
                     'codigo' => $code,
                     'posicion' => $role,
                     'nombres' => $name,
                     'apellidos' => $lastname,
-                    'fecha_inicio' => $startdate,
+                    'fecha_inicio' => $date,
                 ],
             ];
         } catch (Exception $e) {
@@ -121,7 +118,7 @@ class Partner
         Flight::json($response);
     }
 
-    public static function update(){
+    public static function update($id){
         try{
             $state = Flight::request()->query->state;
             $user = Flight::request()->query->user;
@@ -130,9 +127,50 @@ class Partner
             $name =Flight::request()->query->name;
             $lastname =Flight::request()->query->lastname;
             $date = date("Y-m-d");
-            echo date("Y-m-d");
+            
+            $query = Flight::db()->prepare("UPDATE partners SET state_partner=:state, user_partner=:user, code_partner=:code, role_partner=:role, name_partner=:name, lastname_partner=:lastname, update_partner=:date WHERE id_partner=:id");
+            $query->execute([
+                ":state" => $state,
+                ":user" => $user,
+                ":code" => $code,
+                ":role" => $role,
+                ":name" => $name,
+                ":lastname" =>$lastname,
+                ":date" => $date,
+                ":id" => $id,
+            ]);
+
+            if($query->rowCount() == 0){
+                $response = [
+                    'status' => 'error',
+                    'error' => 'Actualizacion no realizada',
+                ];
+                Flight::json($response);
+                return;
+            }
+
+            $partner = [
+                'id' => $id,
+                'state' => $state,
+                'user' => $user,
+                'code' => $code,
+                'role' => $role,
+                'name' => $name,
+                'lastname' => $lastname,
+                'fecha_actualizado' => $date,
+            ];
+
+            $response = [
+                'status' => 'success',
+                'partner' => $partner,
+            ];
         }catch(Exception $e){
+            $response = [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
         }
+        Flight::json($response);
     }
 
     public static function delete($id){
