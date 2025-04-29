@@ -121,6 +121,20 @@ class Partner
         Flight::json($response);
     }
 
+    public static function update(){
+        try{
+            $state = Flight::request()->query->state;
+            $user = Flight::request()->query->user;
+            $code =Flight::request()->query->code;
+            $role =Flight::request()->query->role;
+            $name =Flight::request()->query->name;
+            $lastname =Flight::request()->query->lastname;
+            $date = date("Y-m-d");
+            echo date("Y-m-d");
+        }catch(Exception $e){
+        }
+    }
+
     public static function delete($id){
         try{
             $query = Flight::db()->prepare("DELETE FROM partners WHERE id_partner = :id");

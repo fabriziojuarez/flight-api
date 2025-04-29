@@ -5,20 +5,22 @@ require_once "functions/Training.php";
 
 //MEJORAR ESTO
 // BUSCAR: RUTAS PROTEGIDAS
-Flight::route('/', function(){
-    echo "xd";
+Flight::route('/index.php', function(){
+    echo "Api levantada :3";
 });
 
 // PARTNERS
 Flight::route('GET /partners', [Partner::class, 'index']);
 Flight::route('GET /partners/@id', [Partner::class, 'show']);
 Flight::route('POST /partners', [Partner::class, 'store']);
+Flight::route('PUT /partners', [Partner::class, 'update']);
 Flight::route('DELETE /partners/@id', [Partner::class, 'delete']);
 
 // TRAINING
 Flight::route('GET /training', [Training::class, 'index']);
 Flight::route('GET /training/@id', [Training::class, 'show']);
 Flight::route('POST /training', [Training::class, 'store']);
+Flight::route('PUT /training/@id', [Training::class, 'update']);
 Flight::route('DELETE /training/@id', [Training::class, 'delete']);
 
 

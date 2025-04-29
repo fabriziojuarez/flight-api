@@ -3,7 +3,7 @@
 require "./vendor/autoload.php";
 
 $params = [
-    'pgsql:host=localhost;dbname=db_cafeteria',
+    'pgsql:host=192.168.1.54;dbname=db_cafeteria',
     'postgres',
     '759878'
 ];

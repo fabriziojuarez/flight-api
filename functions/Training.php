@@ -14,6 +14,7 @@ class Training
                 $data[] = [
                     'id' => $row['id_training'],
                     'nombre' => $row['name_training'],
+                    'estado' => $row['state_training'],
                 ];
             }
             $response = [
@@ -31,7 +32,7 @@ class Training
 
     public static function show($id)
     {
-        try{
+        try {
             $query = Flight::db()->prepare("SELECT * FROM training WHERE id_training = :id");
             $query->execute([':id' => $id]);
             $result = $query->fetch();
@@ -39,13 +40,14 @@ class Training
             $data = [
                 'id' => $result['id_training'],
                 'nombre' => $result['name_training'],
+                'estado' => $result['state_training']
             ];
 
             $response = [
                 'status' => 'success',
                 'training' => $data,
             ];
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $response = [
                 'status' => 'error',
                 'error' => $e->getMessage(),
@@ -67,6 +69,7 @@ class Training
                 'training' => [
                     'id' => Flight::db()->lastInsertId(),
                     'nombre' => $name,
+                    'estado' => 'ACTIVO',
                 ],
             ];
         } catch (Exception $e) {
@@ -78,12 +81,48 @@ class Training
         Flight::json($response);
     }
 
-    public static function delete($id){
-        try{
+    public static function update($id)
+    {
+        try {
+            $name = Flight::request()->query->name;
+            $state = Flight::request()->query->state;
+
+            $query = Flight::db()->prepare("UPDATE training SET name_training=:name, state_training=:state WHERE id_training=:id");
+            $query->execute([
+                ":name" => $name,
+                ':state' => $state,
+                ":id" => $id
+            ]);
+
+            if($query->rowCount() == 0){
+                $response = [
+                    'status' => 'error',
+                    'error' => 'Actualizacion no realizada',
+                ];
+                Flight::json($response);
+                return;
+            }
+
+            $response = [
+                'status' => 'success',
+                'msg' => 'Capacitacion actualizada'
+            ];
+        } catch (Exception $e) {
+            $response = [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
+        }
+        Flight::json($response);
+    }
+
+    public static function delete($id)
+    {
+        try {
             $query = Flight::db()->prepare("DELETE FROM training WHERE id_training = :id");
             $query->execute([':id' => $id]);
 
-            if($query->rowCount() == 0){
+            if ($query->rowCount() == 0) {
                 $response = [
                     'status' => 'error',
                     'error' => 'Eliminacion no realizada',
@@ -96,7 +135,7 @@ class Training
                 'status' => 'success',
                 'msg' => 'Capacitacion eliminada',
             ];
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $response = [
                 'status' => 'error',
                 'error' => $e->getMessage(),
