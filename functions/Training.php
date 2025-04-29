@@ -11,49 +11,47 @@ class Training
             $query->execute();
             $results = $query->fetchAll();
             foreach ($results as $row) {
-                $data[] = [
+                $trainings[] = [
                     'id' => $row['id_training'],
                     'nombre' => $row['name_training'],
                     'estado' => $row['state_training'],
                 ];
             }
-            $response = [
-                'status' => 'success',
-                'list_training' => $data,
-            ];
+            Flight::json([
+                'success' => true,
+                'message' => 'Capacitaciones listadas',
+                'list_capacitaciones' => $trainings,
+            ]);
         } catch (Exception $e) {
-            $response = [
-                'status' => 'error',
-                'error' => $e->getMessage(),
-            ];
+            Flight::error($e);
         }
-        Flight::json($response);
     }
 
     public static function show($id)
     {
         try {
+            if(empty($id)){
+                throw new Exception("Id de capacitacion es requerido", 400);
+            }
+
             $query = Flight::db()->prepare("SELECT * FROM training WHERE id_training = :id");
             $query->execute([':id' => $id]);
             $result = $query->fetch();
 
-            $data = [
+            $training = [
                 'id' => $result['id_training'],
                 'nombre' => $result['name_training'],
                 'estado' => $result['state_training']
             ];
 
-            $response = [
-                'status' => 'success',
-                'training' => $data,
-            ];
+            Flight::json([
+                'success' => true,
+                'message' => 'Capacitacion encontrada',
+                'training' => $training,
+            ]);
         } catch (Exception $e) {
-            $response = [
-                'status' => 'error',
-                'error' => $e->getMessage(),
-            ];
+            Flight::error($e);
         }
-        Flight::json($response);
     }
 
     public static function store()
@@ -61,31 +59,49 @@ class Training
         try {
             $name = Flight::request()->data->name;
 
-            $query = Flight::db()->prepare("INSERT INTO training (name_training) VALUES (:name)");
+            if (empty($name)) {
+                throw new Exception("Nombre de capacitacion es requerida", 400);
+            }
+
+            $query = Flight::db()->prepare("INSERT INTO training(name_training) VALUES(:name)");
             $query->execute([":name" => $name]);
 
-            $response = [
-                'status' => 'success',
-                'training' => [
-                    'id' => Flight::db()->lastInsertId(),
-                    'nombre' => $name,
-                    'estado' => 'ACTIVO',
-                ],
+            if ($query->rowCount() === 0) {
+                throw new Exception("Capacitacion no insertada", 500);
+            }
+
+            $training = [
+                'id' => Flight::db()->lastInsertId(),
+                'nombre' => $name,
+                'estado' => 'ACTIVO',
             ];
+
+            Flight::json([
+                'success' => true,
+                'message' => 'Capacitacion creada correctamente',
+                'training' => $training,
+            ]);
         } catch (Exception $e) {
-            $response = [
-                'status' => 'error',
-                'error' => $e->getMessage(),
-            ];
+            Flight::error($e);
         }
-        Flight::json($response);
     }
 
     public static function update($id)
     {
         try {
+            if(empty($id)){
+                throw new Exception("Id de capacitacion es requerido", 400);
+            }
+
             $name = Flight::request()->query->name;
             $state = Flight::request()->query->state;
+
+            if (empty($name)) {
+                throw new Exception("Nuevo nombre de capacitacion es requerido", 400);
+            }
+            if (empty($state)) {
+                throw new Exception("Nuevo estado de capacitacion es requerido", 400);
+            }
 
             $query = Flight::db()->prepare("UPDATE training SET name_training=:name, state_training=:state WHERE id_training=:id");
             $query->execute([
@@ -94,13 +110,8 @@ class Training
                 ":id" => $id
             ]);
 
-            if($query->rowCount() == 0){
-                $response = [
-                    'status' => 'error',
-                    'error' => 'Actualizacion no realizada',
-                ];
-                Flight::json($response);
-                return;
+            if ($query->rowCount() === 0) {
+                throw new Exception("Capacitacion no actualizada", 400);
             }
 
             $training = [
@@ -109,44 +120,36 @@ class Training
                 'estado' => $state,
             ];
 
-            $response = [
-                'status' => 'success',
-                'msg' => 'Capacitacion actualizada'
-            ];
+            Flight::json([
+                'success' => true,
+                'message' => 'Capacitacion actualizada correctamente',
+                'training' => $training,
+            ]);
         } catch (Exception $e) {
-            $response = [
-                'status' => 'error',
-                'error' => $e->getMessage(),
-            ];
+            Flight::error($e);
         }
-        Flight::json($response);
     }
 
     public static function delete($id)
     {
         try {
+            if(empty($id)){
+                throw new Exception("Id de capacitacion es requerida", 400);
+            }
+
             $query = Flight::db()->prepare("DELETE FROM training WHERE id_training = :id");
             $query->execute([':id' => $id]);
 
-            if ($query->rowCount() == 0) {
-                $response = [
-                    'status' => 'error',
-                    'error' => 'Eliminacion no realizada',
-                ];
-                Flight::json($response);
-                return;
+            if ($query->rowCount() === 0) {
+                throw new Exception("Capacitacion no eliminada", 400);
             }
 
-            $response = [
-                'status' => 'success',
-                'msg' => 'Capacitacion eliminada',
-            ];
+            Flight::json([
+                'success' => true,
+                'message' => 'Capacitacion eliminada correctamente',
+            ]);
         } catch (Exception $e) {
-            $response = [
-                'status' => 'error',
-                'error' => $e->getMessage(),
-            ];
+            Flight::error($e);
         }
-        Flight::json($response);
     }
 }

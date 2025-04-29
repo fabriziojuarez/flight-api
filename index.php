@@ -3,10 +3,19 @@
 require_once "functions/Partner.php";
 require_once "functions/Training.php";
 
+// MANEJO DE ERRORES DE MANERA GLOBAL
+Flight::map('error', function(Exception $ex){
+    $code = $ex->getCode() ?: 500;
+    Flight::json([
+        'error' => true,
+        'message' => $ex->getMessage()
+    ], $code);
+});
+
 //MEJORAR ESTO
 // BUSCAR: RUTAS PROTEGIDAS
 Flight::route('/index.php', function(){
-    echo "Api levantada :3";
+    //echo "Api levantada :3";
 });
 
 // PARTNERS
