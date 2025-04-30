@@ -1,10 +1,13 @@
 <?php
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 require_once "./functions/Partner.php";
 require_once "./functions/Training.php";
 
 // MANEJO DE ERRORES DE MANERA GLOBAL
-Flight::map('error', function(Exception $ex){
+Flight::map('error', function (Exception $ex) {
     $code = $ex->getCode() ?: 500;
     Flight::json([
         'error' => true,
@@ -13,11 +16,34 @@ Flight::map('error', function(Exception $ex){
     ], $code);
 });
 
-//MEJORAR ESTO
+// CAPTURADORES DE TOKEN EN HEADERS
+function getToken()
+{
+    $headers = apache_request_headers();
+    if(empty($headers['Authorization'])){
+        throw new Exception("Token de verificacion es requerido", 401);
+    }
+    $auth = $headers['Authorization'];
+    $autharray = explode(" ", $auth);
+    $token = $autharray[1];
+    $decoded = JWT::decode($token, new Key($_ENV['key'], $_ENV['algcod']));
+    return $decoded;
+}
+function validarToken()
+{
+    $info = getToken();
+    $query = Flight::db()->prepare("SELECT * FROM partners WHERE id_partner = :id");
+    $query->execute([":id" => $info->data]);
+    $result = $query->fetch();
+    return $result;
+}
+
 // BUSCAR: RUTAS PROTEGIDAS
-Flight::route('/index.php', function(){
+Flight::route('/index.php', function () {
     //echo "Api levantada :3";
 });
+
+Flight::route('POST /auth', [Partner::class, 'auth']);
 
 // PARTNERS
 Flight::route('GET /partners', [Partner::class, 'index']);

@@ -1,16 +1,65 @@
 <?php
 
+use Firebase\JWT\JWT;
+
 require_once "./config/connection.php";
 
 class Partner
 {
+    public static function auth()
+    {
+        try {
+            $user = Flight::request()->data->user;
+            $code = Flight::request()->data->code;
+
+            if (empty($user)) {
+                throw new Exception("Usuario es requerido", 400);
+            }
+            if (empty($code)) {
+                throw new Exception("Codigo es requerido", 400);
+            }
+
+            $query = Flight::db()->prepare("SELECT * FROM partners WHERE user_partner = :user");
+            $query->execute([":user" => $user]);
+            $result = $query->fetch();
+
+            if ($query->rowCount() === 0) {
+                throw new Exception("Usuario no registrado", 400);
+            }
+
+            if ($result['code_partner'] !== $code) {
+                throw new Exception("Codigo erroneo", 400);
+            }
+
+            //LOGIN ACEPTADO
+            $now = strtotime("now");
+            $payload = [
+                'exp' => $now+3600,
+                'data' => $result['id_partner'],
+            ];
+
+            $jwt = JWT::encode($payload, $_ENV['key'], $_ENV['algcod']);
+            
+            Flight::json([
+                'success' => true,
+                'message' => 'Login aceptado',
+                'token' => $jwt,
+            ]);
+        } catch (Exception $e) {
+            Flight::error($e);
+        }
+    }
+
     public static function index()
     {
         try {
+            if(!validarToken()){
+                throw new Exception("Error en validacion", 401);
+            }
+
             $query = Flight::db()->prepare("SELECT * FROM partners");
             $query->execute();
             $result = $query->fetchAll();
-            $data = [];
             foreach ($result as $row) {
                 $partners[] = [
                     'id' => $row['id_partner'],
@@ -37,8 +86,8 @@ class Partner
 
     public static function show($id)
     {
-        try{
-            if(!is_numeric($id)){
+        try {
+            if (!is_numeric($id)) {
                 throw new Exception("Id '$id' no es un valor valido", 400);
             }
 
@@ -46,7 +95,7 @@ class Partner
             $query->execute([':id' => $id]);
             $result = $query->fetch();
 
-            if($query->rowCount() === 0){
+            if ($query->rowCount() === 0) {
                 throw new EXception("Partner con id '$id' no encontrado", 404);
             }
 
@@ -67,7 +116,7 @@ class Partner
                 'message' => 'Partner encontrado',
                 'partner' => $partner,
             ]);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             Flight::error($e);
         }
     }
@@ -75,6 +124,11 @@ class Partner
     public static function store()
     {
         try {
+            // FUNCION DE VERIFICACION(AUTENTIFICACTE PRIMERO)
+            if(!validarToken()){
+                throw new Exception("Error en validacion", 401);
+            }
+
             $user = Flight::request()->data->user;
             $code = Flight::request()->data->code;
             $role = Flight::request()->data->role;
@@ -82,23 +136,22 @@ class Partner
             $lastname = Flight::request()->data->lastname;
             $date = date("Y-m-d");
 
-            if(empty($user)){
+            if (empty($user)) {
                 throw new Exception("Usuario de partner es requerido", 400);
             }
-            if(empty($code)){
-                throw new Exception("Codigo para partner es requerido", 400);
-
+            if (empty($code) || !is_numeric($code)) {
+                throw new Exception("Codigo numerico para partner es requerido", 400);
             }
-            if(empty($role)){
+            if (empty($role)) {
                 throw new Exception("Rol de partner es requerido", 400);
             }
-            if($role != "PT" && $role != "FT" && $role != "BT" && $role != "SSV" && $role != "SM"){
-                throw new Exception("Solo se permiten los valores 'PT', 'FT', 'BT', 'SSV' y 'SM' en el campo role", 400);
+            if ($role != "PT" && $role != "FT" && $role != "BT" && $role != "SSV" && $role != "SM") {
+                throw new Exception("Solo se permiten los valores 'PT', 'FT', 'BT', 'SSV' y 'SM' en el campo rol", 400);
             }
-            if(empty($name)){
+            if (empty($name)) {
                 throw new Exception("Nombre de partner es requerido", 400);
             }
-            if(empty($lastname)){
+            if (empty($lastname)) {
                 throw new Exception("Apellido de partner es requerido", 400);
             }
 
@@ -119,19 +172,19 @@ class Partner
                 ":startdate" => $date,
             ]);
 
-            if($query->rowCount() === 0){
+            if ($query->rowCount() === 0) {
                 throw new Exception("Partner no insertado", 400);
             }
 
             $partner = [
                 'id' => Flight::db()->lastInsertId(),
-                    'estado' => 'ACTIVO',
-                    'usuario' => $user,
-                    'codigo' => $code,
-                    'posicion' => $role,
-                    'nombres' => $name,
-                    'apellidos' => $lastname,
-                    'fecha_inicio' => $date,
+                'estado' => 'ACTIVO',
+                'usuario' => $user,
+                'codigo' => $code,
+                'posicion' => $role,
+                'nombres' => $name,
+                'apellidos' => $lastname,
+                'fecha_inicio' => $date,
             ];
 
             Flight::json([
@@ -146,41 +199,45 @@ class Partner
 
     public static function update($id)
     {
-        try{
-            if(!is_numeric($id)){
+        try {
+            if(!validarToken()){
+                throw new Exception("Error en validacion", 401);
+            }
+
+            if (!is_numeric($id)) {
                 throw new Exception("Id '$id' no es un valor valido", 400);
             }
 
             $state = Flight::request()->query->state;
             $user = Flight::request()->query->user;
-            $code =Flight::request()->query->code;
-            $role =Flight::request()->query->role;
-            $name =Flight::request()->query->name;
-            $lastname =Flight::request()->query->lastname;
+            $code = Flight::request()->query->code;
+            $role = Flight::request()->query->role;
+            $name = Flight::request()->query->name;
+            $lastname = Flight::request()->query->lastname;
             $date = date("Y-m-d");
-            
-            if(empty($state)){
+
+            if (empty($state)) {
                 throw new Exception("Nuevo estado de partner es requerido", 400);
             }
-            if($state != "INNACTIVO" && $state !="BAJA MEDICA" && $state !="VACACIONES" && $state != "ACTIVO"){
+            if ($state != "INNACTIVO" && $state != "BAJA MEDICA" && $state != "VACACIONES" && $state != "ACTIVO") {
                 throw new Exception("Solo se permiten los valores 'INNACTIVO', 'BAJA MEDICA', 'VACACIONES', 'ACTIVO' en el campo estado", 400);
             }
-            if(empty($user)){
+            if (empty($user)) {
                 throw new Exception("Nuevo usuario de partner es requerido", 400);
             }
-            if(empty($code)){
-                throw new Exception("Nuevo codigo de partner es requerido", 400);
+            if (empty($code) || !is_numeric($code)) {
+                throw new Exception("Nuevo codigo numerico de partner es requerido", 400);
             }
-            if(empty($role)){
+            if (empty($role)) {
                 throw new Exception("Nuevo rol de partner es requerido", 400);
             }
-            if($role != "PT" && $role != "FT" && $role != "BT" && $role != "SSV" && $role != "SM"){
+            if ($role != "PT" && $role != "FT" && $role != "BT" && $role != "SSV" && $role != "SM") {
                 throw new Exception("Solo se permiten los valores 'PT', 'FT', 'BT', 'SSV' y 'SM' en el campo role", 400);
             }
-            if(empty($name)){
+            if (empty($name)) {
                 throw new Exception("Nuevo nombre de partner es requerido", 400);
             }
-            if(empty($lastname)){
+            if (empty($lastname)) {
                 throw new Exception("Nuevo apellido de partner es requerido", 400);
             }
 
@@ -191,12 +248,12 @@ class Partner
                 ":code" => $code,
                 ":role" => $role,
                 ":name" => $name,
-                ":lastname" =>$lastname,
+                ":lastname" => $lastname,
                 ":date" => $date,
                 ":id" => $id,
             ]);
 
-            if($query->rowCount() === 0){
+            if ($query->rowCount() === 0) {
                 throw new Exception("Partner no actualizado", 400);
             }
 
@@ -216,21 +273,22 @@ class Partner
                 'message' => 'Partner actualizado correctamente',
                 'partner' => $partner,
             ]);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             Flight::error($e);
         }
     }
 
-    public static function delete($id){
-        try{
-            if(!is_numeric($id)){
+    public static function delete($id)
+    {
+        try {
+            if (!is_numeric($id)) {
                 throw new Exception("Id '$id' no es un valor valido", 400);
             }
 
             $query = Flight::db()->prepare("DELETE FROM partners WHERE id_partner = :id");
             $query->execute([':id' => $id]);
 
-            if($query->rowCount() === 0){
+            if ($query->rowCount() === 0) {
                 throw new Exception("Partner con id '$id' no se puede eliminar", 400);
             }
 
@@ -238,7 +296,7 @@ class Partner
                 'success' => true,
                 'message' => 'Partner eliminado correctamente',
             ]);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             Flight::error($e);
         }
     }
