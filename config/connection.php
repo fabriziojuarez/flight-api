@@ -2,15 +2,21 @@
 
 require "./vendor/autoload.php";
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/..');
+$dotenv->load();
+
 date_default_timezone_set("America/Lima");
 
+$host = $_ENV['host'];
+$db = $_ENV['db'];
+$user = $_ENV['user'];
+$pass = $_ENV['pass'];
+
 $params = [
-    'pgsql:host=192.168.1.54;
-     dbname=db_cafeteria',
-    'postgres',
-    '759878'
+    "pgsql:host=$host;
+    dbname=$db",
+    "$user",
+    "$pass"
 ];
 
-Flight::register('db', 'PDO', $params, function($db) {
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-});
+Flight::register('db', 'PDO', $params);

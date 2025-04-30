@@ -1,13 +1,14 @@
 <?php
 
-require_once "functions/Partner.php";
-require_once "functions/Training.php";
+require_once "./functions/Partner.php";
+require_once "./functions/Training.php";
 
 // MANEJO DE ERRORES DE MANERA GLOBAL
 Flight::map('error', function(Exception $ex){
     $code = $ex->getCode() ?: 500;
     Flight::json([
         'error' => true,
+        'type' => get_class($ex),
         'message' => $ex->getMessage()
     ], $code);
 });

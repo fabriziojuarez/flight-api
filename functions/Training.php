@@ -1,5 +1,7 @@
 <?php
 
+use function PHPSTORM_META\type;
+
 require_once "./config/connection.php";
 
 class Training
@@ -30,13 +32,17 @@ class Training
     public static function show($id)
     {
         try {
-            if(empty($id)){
-                throw new Exception("Id de capacitacion es requerido", 400);
+            if(!is_numeric($id)){
+                throw new Exception("Id '$id' no es un valor valido", 400);
             }
 
             $query = Flight::db()->prepare("SELECT * FROM training WHERE id_training = :id");
             $query->execute([':id' => $id]);
             $result = $query->fetch();
+
+            if($query->rowCount() === 0){
+                throw new Exception("Capacitacion con Id '$id' no encontrado", 404);
+            }
 
             $training = [
                 'id' => $result['id_training'],
@@ -89,8 +95,8 @@ class Training
     public static function update($id)
     {
         try {
-            if(empty($id)){
-                throw new Exception("Id de capacitacion es requerido", 400);
+            if(!is_numeric($id)){
+                throw new Exception("Id '$id' no es un valor valido", 400);
             }
 
             $name = Flight::request()->query->name;
@@ -101,6 +107,9 @@ class Training
             }
             if (empty($state)) {
                 throw new Exception("Nuevo estado de capacitacion es requerido", 400);
+            }
+            if($state != "ACTIVO" && $state != "INNACTIVO"){
+                throw new Exception("Solo se permiten los valores 'ACTIVO' e 'INNACTIVO' en el campo state");
             }
 
             $query = Flight::db()->prepare("UPDATE training SET name_training=:name, state_training=:state WHERE id_training=:id");
@@ -133,15 +142,15 @@ class Training
     public static function delete($id)
     {
         try {
-            if(empty($id)){
-                throw new Exception("Id de capacitacion es requerida", 400);
+            if(!is_numeric($id)){
+                throw new Exception("Id '$id' no es un valor valido", 400);
             }
 
             $query = Flight::db()->prepare("DELETE FROM training WHERE id_training = :id");
             $query->execute([':id' => $id]);
 
             if ($query->rowCount() === 0) {
-                throw new Exception("Capacitacion no eliminada", 400);
+                throw new Exception("Capacitacion con id '$id' no se puede eliminar", 400);
             }
 
             Flight::json([
