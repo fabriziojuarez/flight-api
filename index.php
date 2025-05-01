@@ -29,11 +29,19 @@ function getToken()
     $decoded = JWT::decode($token, new Key($_ENV['key'], $_ENV['algcod']));
     return $decoded;
 }
-function validarToken()
+function validarToken()     // ACCESO PUBLICO
 {
     $info = getToken();
     $query = Flight::db()->prepare("SELECT * FROM partners WHERE id_partner = :id");
     $query->execute([":id" => $info->data]);
+    $result = $query->fetch();
+    return $result;
+}
+function validarTokenBT()   // SOLO ACCESO PARA BT
+{
+    $info = getToken();
+    $query = Flight::db()->prepare("SELECT * FROM partners WHERE role_partner='BT' AND id_partner=:id");
+    $query->execute([":id"=>$info->data]);
     $result = $query->fetch();
     return $result;
 }

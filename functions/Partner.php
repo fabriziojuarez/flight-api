@@ -53,8 +53,8 @@ class Partner
     public static function index()
     {
         try {
-            if(!validarToken()){
-                throw new Exception("Error en validacion", 401);
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido", 401);
             }
 
             $query = Flight::db()->prepare("SELECT * FROM partners");
@@ -87,6 +87,10 @@ class Partner
     public static function show($id)
     {
         try {
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido");
+            }
+
             if (!is_numeric($id)) {
                 throw new Exception("Id '$id' no es un valor valido", 400);
             }
@@ -125,8 +129,8 @@ class Partner
     {
         try {
             // FUNCION DE VERIFICACION(AUTENTIFICACTE PRIMERO)
-            if(!validarToken()){
-                throw new Exception("Error en validacion", 401);
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido", 401);
             }
 
             $user = Flight::request()->data->user;
@@ -200,8 +204,8 @@ class Partner
     public static function update($id)
     {
         try {
-            if(!validarToken()){
-                throw new Exception("Error en validacion", 401);
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido", 401);
             }
 
             if (!is_numeric($id)) {
@@ -281,6 +285,9 @@ class Partner
     public static function delete($id)
     {
         try {
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido", 400);
+            }
             if (!is_numeric($id)) {
                 throw new Exception("Id '$id' no es un valor valido", 400);
             }

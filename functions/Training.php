@@ -1,7 +1,5 @@
 <?php
 
-use function PHPSTORM_META\type;
-
 require_once "./config/connection.php";
 
 class Training
@@ -9,6 +7,10 @@ class Training
     public static function index()
     {
         try {
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido", 401);
+            }
+
             $query = Flight::db()->prepare("SELECT * FROM training");
             $query->execute();
             $results = $query->fetchAll();
@@ -33,7 +35,7 @@ class Training
     {
         try {
             if(!is_numeric($id)){
-                throw new Exception("Id '$id' no es un valor valido", 400);
+                throw new Exception("Id '$id' no es un valor valido", 401);
             }
 
             $query = Flight::db()->prepare("SELECT * FROM training WHERE id_training = :id");
@@ -63,6 +65,10 @@ class Training
     public static function store()
     {
         try {
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido", 401);
+            }
+
             $name = Flight::request()->data->name;
 
             if (empty($name)) {
@@ -95,6 +101,10 @@ class Training
     public static function update($id)
     {
         try {
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido", 401);
+            }
+
             if(!is_numeric($id)){
                 throw new Exception("Id '$id' no es un valor valido", 400);
             }
@@ -142,6 +152,10 @@ class Training
     public static function delete($id)
     {
         try {
+            if(!validarTokenBT()){
+                throw new Exception("Rol 'BT' es requerido", 401);
+            }
+
             if(!is_numeric($id)){
                 throw new Exception("Id '$id' no es un valor valido", 400);
             }
