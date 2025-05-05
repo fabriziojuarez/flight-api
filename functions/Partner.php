@@ -53,8 +53,8 @@ class Partner
     public static function index()
     {
         try {
-            if(!validarTokenBT()){
-                throw new Exception("Rol 'BT' es requerido", 401);
+            if(!validarToken()){
+                throw new Exception("Necesitas autenticarte", 401);
             }
 
             $query = Flight::db()->prepare("SELECT * FROM partners");
@@ -88,7 +88,7 @@ class Partner
     {
         try {
             if(!validarTokenBT()){
-                throw new Exception("Rol 'BT' es requerido");
+                throw new Exception("Necesitas autenticarte", 401);
             }
 
             if (!is_numeric($id)) {
@@ -128,7 +128,7 @@ class Partner
     public static function store()
     {
         try {
-            // FUNCION DE VERIFICACION(AUTENTIFICACTE PRIMERO)
+            // FUNCION DE VERIFICACION(AUTENTIFICARSE PRIMERO COMO 'BT')
             if(!validarTokenBT()){
                 throw new Exception("Rol 'BT' es requerido", 401);
             }
@@ -270,7 +270,7 @@ class Partner
                 'nombres' => $name,
                 'apellidos' => $lastname,
                 'fecha_actualizado' => $date,
-            ];
+            ];  
 
             Flight::json([
                 'success' => true,
