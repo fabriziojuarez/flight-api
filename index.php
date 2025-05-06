@@ -76,6 +76,11 @@ Flight::route('POST /topics', [Topic::class, 'store']);
 Flight::route('PUT /topics', [Topic::class, 'update']);
 Flight::route('DELETE /topics/@id', [Topic::class, 'delete']);
 
-
+// REGISTRATION
+Flight::route('GET /registration', []);
+Flight::route('GET /registration/@id', []);
+Flight::route('POST /registration', []);
+Flight::route('PUT /registration', []);
+Flight::route('DELETE /registration', []);
 
 Flight::start();
