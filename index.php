@@ -5,6 +5,7 @@ use Firebase\JWT\Key;
 
 require_once "./functions/Partner.php";
 require_once "./functions/Training.php";
+require_once "./functions/Topic.php";
 
 // MANEJO DE ERRORES DE MANERA GLOBAL
 Flight::map('error', function (Exception $ex) {
@@ -29,7 +30,7 @@ function getToken()
     $decoded = JWT::decode($token, new Key($_ENV['key'], $_ENV['algcod']));
     return $decoded;
 }
-function validarToken()     // ACCESO PUBLICO
+function validarToken()     // ACCESO CON CUENTA
 {
     $info = getToken();
     $query = Flight::db()->prepare("SELECT * FROM partners WHERE id_partner = :id");
@@ -37,7 +38,7 @@ function validarToken()     // ACCESO PUBLICO
     $result = $query->fetch();
     return $result;
 }
-function validarTokenBT()   // SOLO ACCESO PARA BT
+function validarTokenBT()   // SOLO ACCESO PARA CUENTAS DE Barista-Trainer
 {
     $info = getToken();
     $query = Flight::db()->prepare("SELECT * FROM partners WHERE role_partner='BT' AND id_partner=:id");
@@ -46,11 +47,10 @@ function validarTokenBT()   // SOLO ACCESO PARA BT
     return $result;
 }
 
-// BUSCAR: RUTAS PROTEGIDAS
 Flight::route('/index.php', function () {
-    //echo "Api levantada :3";
+    //echo "Api levantada";
 });
-
+// RUTA PARA AUTENTICARSE Y OBTENER UN TOKEN
 Flight::route('POST /auth', [Partner::class, 'auth']);
 
 // PARTNERS
@@ -66,6 +66,16 @@ Flight::route('GET /training/@id', [Training::class, 'show']);
 Flight::route('POST /training', [Training::class, 'store']);
 Flight::route('PUT /training/@id', [Training::class, 'update']);
 Flight::route('DELETE /training/@id', [Training::class, 'delete']);
+
+Flight::route('GET /training/@id/topics', [Topic::class, 'indexTopics']);
+
+// TOPICS
+Flight::route('GET /topics', [Topic::class, 'index']);
+Flight::route('GET /topics/@id', [Topic::class, 'show']);
+Flight::route('POST /topics', [Topic::class, 'store']);
+Flight::route('PUT /topics', [Topic::class, 'update']);
+Flight::route('DELETE /topics/@id', [Topic::class, 'delete']);
+
 
 
 Flight::start();
