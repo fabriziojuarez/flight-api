@@ -99,16 +99,24 @@ class Registration
             Flight::error($e);
         }
     }
-    public static function update()
+    public static function delete($id)
     {
         try {
-        } catch (Exception $e) {
-            Flight::error($e);
-        }
-    }
-    public static function delete()
-    {
-        try {
+            if(empty($id) || !is_numeric($id)){
+                throw new Exception("Id '$id' es un valor invalido", 400);
+            }
+
+            $query = Flight::db()->prepare("DELETE FROM registrations WHERE id_registration=:id");
+            $query->execute([":id" => $id]);
+
+            if($query->rowCount()===0){
+                throw new Exception("Registro con id '$id' no se puede eliminar", 400);
+            }
+
+            Flight::json([
+                'success' => true,
+                'message' => 'Registro eliminado correctamente',
+            ]);
         } catch (Exception $e) {
             Flight::error($e);
         }
