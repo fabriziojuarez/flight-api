@@ -65,10 +65,10 @@ class Registration
             $partner = Flight::request()->data->partner;
             $date = date("Y-m-d");
 
-            if (empty($training) || !is_numeric($training)){
+            if (empty($training) || !is_numeric($training)) {
                 throw new Exception("Id numerico de capacitacion es requerido", 400);
             }
-            if (empty($partner) || !is_numeric($partner)){
+            if (empty($partner) || !is_numeric($partner)) {
                 throw new Exception("Id numerico de partner es requerido", 400);
             }
 
@@ -79,7 +79,7 @@ class Registration
                 ":date" => $date,
             ]);
 
-            if($query->rowCount()===0){
+            if ($query->rowCount() === 0) {
                 throw new Exception("Registro no insertado", 400);
             }
 
@@ -87,9 +87,14 @@ class Registration
                 'id' => Flight::db()->lastInsertId(),
                 'capacitacion' => $training,
                 'partner' => $partner,
-                'fecha'=>$date,
+                'fecha' => $date,
             ];
 
+            Flight::json([
+                'success' => true,
+                'message' => 'Registro creado correctamente',
+                'registro' => $registration,
+            ]);
         } catch (Exception $e) {
             Flight::error($e);
         }
