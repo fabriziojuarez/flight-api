@@ -73,14 +73,20 @@ Flight::route('GET /training/@id/topics', [Topic::class, 'indexTopics']);
 Flight::route('GET /topics', [Topic::class, 'index']);
 Flight::route('GET /topics/@id', [Topic::class, 'show']);
 Flight::route('POST /topics', [Topic::class, 'store']);
-Flight::route('PUT /topics', [Topic::class, 'update']);
+Flight::route('PUT /topics/@id', [Topic::class, 'update']);
 Flight::route('DELETE /topics/@id', [Topic::class, 'delete']);
 
-// REGISTRATION
-Flight::route('GET /registration', []);
-Flight::route('GET /registration/@id', []);
-Flight::route('POST /registration', []);
-Flight::route('PUT /registration', []);
-Flight::route('DELETE /registration', []);
+// REGISTRATION | NOTA: NO tendra la capacidad de actualizar
+Flight::route('GET /registration', [Registration::class, 'index']);
+Flight::route('GET /registration/@id', [Registration::class, 'show']);
+Flight::route('POST /registration', [Registration::class, 'store']);
+Flight::route('DELETE /registration', [Registration::class,'delete']);
+
+// LOGS
+Flight::route('GET /logs', []);
+Flight::route('GET /logs/@id', []);
+Flight::route('POST /logs', []);
+Flight::route('PUT /logs/@id', []);
+Flight::route('DELETE logs/@id', []);
 
 Flight::start();
