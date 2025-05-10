@@ -53,9 +53,9 @@ class Partner
     public static function index()
     {
         try {
-            if(!validarToken()){
-                throw new Exception("Necesitas autenticarte", 401);
-            }
+            // if(!validarToken()){
+            //     throw new Exception("Necesitas autenticarte", 401);
+            // }
 
             $query = Flight::db()->prepare("SELECT * FROM partners");
             $query->execute();
@@ -87,9 +87,9 @@ class Partner
     public static function show($id)
     {
         try {
-            if(!validarTokenBT()){
-                throw new Exception("Necesitas autenticarte", 401);
-            }
+            // if(!validarTokenBT()){
+            //     throw new Exception("Necesitas autenticarte", 401);
+            // }
 
             if (!is_numeric($id)) {
                 throw new Exception("Id '$id' no es un valor valido", 400);
@@ -117,7 +117,7 @@ class Partner
 
             Flight::json([
                 'success' => true,
-                'message' => 'Partner encontrado',
+                'message' => "Partner con id '$id' encontrado",
                 'partner' => $partner,
             ]);
         } catch (Exception $e) {
@@ -258,7 +258,7 @@ class Partner
             ]);
 
             if ($query->rowCount() === 0) {
-                throw new Exception("Partner no actualizado", 400);
+                throw new Exception("Partner con id '$id' no actualizado", 400);
             }
 
             $partner = [

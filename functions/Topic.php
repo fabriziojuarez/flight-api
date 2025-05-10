@@ -156,13 +156,16 @@ class Topic
         }
     }
 
-    public static function update()
+    public static function update($id)
     {
         try {
             $name = Flight::request()->data->name;
             $score = Flight::request()->data->score;
             $training = Flight::request()->data->training;
 
+            if(!is_numeric($id)){
+                throw new Exception("Id '$id' no es un valor valido", 400);
+            }   
             if (empty($name)) {
                 throw new Exception("Nuevo nombre para tema es requerido", 400);
             }
@@ -173,20 +176,29 @@ class Topic
                 throw new Exception("Nuevo id de capacitacion es requerido", 400);
             }
 
-            $query = Flight::db()->prepare("UPDATE topics SET name_topic = :name, score_topic = :score, training_topic = :training");
+            $query = Flight::db()->prepare("UPDATE topics SET name_topic = :name, score_topic = :score, training_topic = :training WHERE id_topic=:id");
             $query->execute([
                 ":name" => $name,
                 ":score" => $score,
                 ":training" => $training,
+                ":id" => $id,
             ]);
 
             if ($query->rowCount() === 0) {
-                throw new Exception("Tema no se actualizo", 400);
+                throw new Exception("Tema con id '$id' no se actualizo", 400);
             }
+
+            $topic = [
+                'id' => $id,
+                'name' => $name,
+                'score' => $score,
+                'training' => $training,
+            ];
 
             Flight::json([
                 'success' => true,
-                'message' => 'Partner actualizado correctamente',
+                'message' => 'Topic actualizado correctamente',
+                'topic' => $topic,
             ]);
         } catch (Exception $e) {
             Flight::error($e);
@@ -196,8 +208,8 @@ class Topic
     public static function delete($id)
     {
         try {
-            if (empty($id) || !is_numeric($id)) {
-                throw new Exception("Id numerico de tema es requerido");
+            if (!is_numeric($id)) {
+                throw new Exception("Id '$id' no es un valor valido");
             }
 
             $query = Flight::db()->prepare("DELETE FROM topics WHERE id_topic = :id");
