@@ -83,10 +83,10 @@ Flight::route('POST /registration', [Registration::class, 'store']);
 Flight::route('DELETE /registration', [Registration::class,'delete']);
 
 // LOGS
-Flight::route('GET /logs', []);
-Flight::route('GET /logs/@id', []);
-Flight::route('POST /logs', []);
-Flight::route('PUT /logs/@id', []);
-Flight::route('DELETE logs/@id', []);
+Flight::route('GET /logs', [Log::class], 'index');
+Flight::route('GET /logs/@id', [Log::class, 'show']);
+Flight::route('POST /logs', [Log::class, 'store']);
+Flight::route('PUT /logs/@id', [Log::class, 'update']);
+Flight::route('DELETE logs/@id', [Log::class, 'delete']);
 
 Flight::start();
